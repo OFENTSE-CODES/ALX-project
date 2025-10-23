@@ -15,20 +15,24 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (optional for production)
+# Load environment variables
 load_dotenv()
 
-# --- BASE DIRECTORY ---
+# ---------------------------
+# BASE DIRECTORIES & SECURITY
+# ---------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- SECURITY SETTINGS ---
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")  # replace in production
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")  # Change in production
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-# --- APPLICATION DEFINITION ---
+# ---------------------------
+# APPLICATIONS
+# ---------------------------
 INSTALLED_APPS = [
-    # Django core apps
+    # Django built-ins
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -39,17 +43,21 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",
     "rest_framework.authtoken",
-    "corsheaders",  # optional: to allow API access from frontend
     "rest_framework_simplejwt",
+    "corsheaders",
+    "dotenv",
 
     # Local apps
     "core",
 ]
 
+# ---------------------------
+# MIDDLEWARE
+# ---------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # must come before CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",  # important for frontend API access
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -57,6 +65,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# ---------------------------
+# ROOT CONFIGURATION
+# ---------------------------
 ROOT_URLCONF = "library_project.urls"
 
 TEMPLATES = [
@@ -77,8 +88,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "library_project.wsgi.application"
 
-# --- DATABASE CONFIGURATION ---
-# Defaults to SQLite for local development. You can override via .env or production settings.
+# ---------------------------
+# DATABASE CONFIG
+# ---------------------------
+# Default: SQLite (local)
+# Optional: PostgreSQL (production)
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
@@ -90,7 +104,9 @@ DATABASES = {
     }
 }
 
-# --- AUTHENTICATION ---
+# ---------------------------
+# AUTHENTICATION & REST FRAMEWORK
+# ---------------------------
 AUTH_USER_MODEL = "core.User"
 
 REST_FRAMEWORK = {
@@ -104,15 +120,21 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+# ---------------------------
+# SIMPLE JWT CONFIGURATION
+# ---------------------------
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
-# --- PASSWORD VALIDATION ---
+# ---------------------------
+# PASSWORD VALIDATION
+# ---------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -120,28 +142,39 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# --- INTERNATIONALIZATION ---
+# ---------------------------
+# INTERNATIONALIZATION
+# ---------------------------
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Africa/Johannesburg"
 USE_I18N = True
 USE_TZ = True
 
-# --- STATIC & MEDIA FILES ---
+# ---------------------------
+# STATIC & MEDIA FILES
+# ---------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# --- CORS SETTINGS ---
-CORS_ALLOW_ALL_ORIGINS = True  # For development; restrict in production
-# Example: CORS_ALLOWED_ORIGINS = ["https://your-frontend-domain.com"]
+# ---------------------------
+# CORS HEADERS
+# ---------------------------
+CORS_ALLOW_ALL_ORIGINS = True  # For development
+# For production, restrict:
+# CORS_ALLOWED_ORIGINS = ["https://yourfrontenddomain.com"]
 
-# --- DEFAULT PRIMARY KEY FIELD TYPE ---
+# ---------------------------
+# DEFAULT PRIMARY KEY FIELD TYPE
+# ---------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- DEPLOYMENT CONFIG (Heroku/PythonAnywhere ready) ---
+# ---------------------------
+# DEPLOYMENT SECURITY (Heroku / PythonAnywhere)
+# ---------------------------
 if not DEBUG:
-    # Security hardening for production
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_SSL_REDIRECT = True
