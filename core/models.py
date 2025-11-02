@@ -32,4 +32,4 @@ class Transaction(models.Model):
 
     @property
     def is_returned(self):
-        return self.return_date is not None
+        return self.return_date is not None 
